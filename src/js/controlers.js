@@ -13,22 +13,27 @@ const getRole = (req, res) => {
   db.query(query, (err, result) => {
     if (err) return res.status(500).json(err);
     if (result.length === 0) return res.sendStatus(404);
-    res.status(200).json(result);
+    res.status(200).json(result[0]);
   });
 };
 
 const addNewRole = (req, res) => {
-  //const { username, email, password, role_id } = req.body;
-  if (!(req.body.name && req.body.member_id))
-    return res.status(400).json({ message: "Name and member id required" });
-  const query = "INSERT INTO role SET ?";
-  const role = {
-    name: req.body.name,
-    member_id: req.body.member_id,
-  };
-  db.query(query, role, (err) => {
+  const { name, member_id } = req.body;
+  if (!name) return res.status(400).json({ message: "Name is required" });
+  const queryToFind = `SELECT * FROM role WHERE name="${name}"`;
+  db.query(queryToFind, (err, result) => {
     if (err) return res.status(500).json(err);
-    res.status(201).json({ message: "New role created" });
+    if (result.length !== 0)
+      return res.status(406).json("There is already role with this name");
+    const query = "INSERT INTO role SET ?";
+    const role = {
+      name,
+      member_id: member_id || 1,
+    };
+    db.query(query, role, (err) => {
+      if (err) return res.status(500).json(err);
+      res.status(201).json({ message: "New role created" });
+    });
   });
 };
 
@@ -66,4 +71,4 @@ const deleteRole = (req, res) => {
   });
 };
 
-module.exports = { getAllRoles, addNewRole, getRole, updateRole, deleteRole };
+module.exports = { getAllRoles, getRole, addNewRole, updateRole, deleteRole };

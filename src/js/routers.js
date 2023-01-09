@@ -11,7 +11,7 @@ router
   .get("/roles", getAllRoles)
   .get("/role/:id", getRole)
   .post("/role", addNewRole)
-  .put("/user/:id", updateRole)
-  .delete("/user/:id", deleteRole);
+  .put("/role/:id", updateRole)
+  .delete("/role/:id", deleteRole);
 
 module.exports = router;
